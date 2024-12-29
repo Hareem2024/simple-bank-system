@@ -1,0 +1,437 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Reems Bank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+        }
+        html {
+            font-size: 62.5%;
+        }
+        body {
+            width: 100%;
+            height: auto;
+            overflow-x: hidden;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        header {
+            margin-top: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 9%;
+            background-color: #161616;
+            filter: drop-shadow(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 3rem;
+            color: #b74b4b;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.5s ease;
+        }
+        .logo:hover {
+            transform: scale(1.1);
+        }
+        .navbar {
+            display: flex;
+            gap: 5px;
+        }
+        .navbar a {
+            color: #b74b4b;
+            font-size: 1.6rem;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: darkred;
+        }
+        section {
+            display: none; 
+            min-height: 100vh;
+            padding: 5rem 9% 5rem;
+            margin-top: 80px;
+        }
+        footer {
+            margin-top: 20px;
+        }
+        .active {
+            display: block; 
+        }
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.8rem;
+            background-color: #b74b4b;
+            border-radius: 4rem;
+            font-size: 1.6rem;
+            color: white;
+            letter-spacing: 0.3rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        .btn:hover {
+            background-color: darkred;
+            box-shadow: 0 0 25px rgba(183, 75, 75, 0.5);
+        }
+        .transaction-list {
+            list-style: none;
+            padding: 0;
+        }
+        .transaction-item {
+            background: #fff;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        let balance = 1000; 
+        let transactions = []; 
+        let withdrawals = []; 
+        let transfers = []; 
+        let users = []; 
+        let currentUser = null; 
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('balanceDisplay').innerText = `Balance: $${balance}`;
+        }
+
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                currentUser = user; 
+                alert("Logged in successfully!");
+                showSection('dashboard');
+                updateBalanceDisplay(); 
+            } else {
+                alert("Account not found. Create an account.");
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('emailReg').value;
+            const password = document.getElementById('passwordReg').value;
+            const existingUser = users.find(u => u.email === email);
+            if (existingUser) {
+                alert("Account already exists. Please log in.");
+                return;
+            }
+
+            users.push({ name, email, password }); 
+            alert("Registration successful! You can now log in.");
+            showSection('login');
+        }
+
+        function deposit() {
+            const depositAmount = parseFloat(document.getElementById('depositAmount').value);
+            if (isNaN(depositAmount) || depositAmount <= 0) {
+                alert("Please enter a valid deposit amount.");
+                return;
+            }
+            balance += depositAmount; 
+            transactions.push(`Deposited: $${depositAmount}`); 
+            updateBalanceDisplay(); 
+            alert(`You have successfully deposited $${depositAmount}.`);
+            showSection('dashboard'); 
+            document.getElementById('depositAmount').value = ""; 
+        }
+
+        function withdraw() {
+            const withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+                alert("Please enter a valid withdrawal amount.");
+                return;
+            }
+            if (withdrawAmount > balance) {
+                alert("Insufficient funds.");
+                return;
+            }
+            balance -= withdrawAmount; 
+            withdrawals.push(`Withdrew: $${withdrawAmount}`); 
+            updateBalanceDisplay(); 
+            alert(`You have successfully withdrawn $${withdrawAmount}.`);
+            showSection('dashboard'); 
+            document.getElementById('withdrawAmount').value = ""; 
+        }
+
+        function transfer() {
+            const transferAmount = parseFloat(document.getElementById('transferAmount').value);
+            const transferTo = document.getElementById('transferTo').value;
+            if (isNaN(transferAmount) || transferAmount <= 0) {
+                alert("Please enter a valid transfer amount.");
+                return;
+            }
+            if (transferAmount > balance) {
+                alert("Insufficient funds.");
+                return;
+            }
+            balance -= transferAmount; 
+            transactions.push(`Transferred: $${transferAmount} to ${transferTo}`); 
+            transfers.push(`Transferred: $${transferAmount} to ${transferTo}`); 
+            updateBalanceDisplay(); 
+            alert(`You have successfully transferred $${transferAmount} to ${transferTo}.`);
+            showSection('dashboard'); 
+            document.getElementById('transferAmount').value = ""; 
+            document.getElementById('transferTo').value = ""; 
+        }
+
+        function checkBalance() {
+            alert(`Your current balance is $${balance}.`);
+        }
+
+        function initialBalance() {
+            alert("Your initial balance is: $1000");
+        }
+
+        function showTransactionHistory() {
+            const transactionList = document.getElementById('transactionList');
+            transactionList.innerHTML = ''; 
+            transactions.forEach(transaction => {
+                const listItem = document.createElement('li');
+                listItem.className = 'transaction-item';
+                listItem.innerText = transaction;
+                transactionList.appendChild(listItem);
+            });
+            showSection('transaction-history');
+        }
+
+        function showWithdrawalHistory() {
+            const withdrawalList = document.getElementById('withdrawalList');
+            withdrawalList.innerHTML = ''; 
+            withdrawals.forEach(withdrawal => {
+                const listItem = document.createElement('li');
+                listItem.className = 'transaction-item';
+                listItem.innerText = withdrawal;
+                withdrawalList.appendChild(listItem);
+            });
+            showSection('withdrawal-history');
+        }
+
+        function showTransferHistory() {
+            const transferList = document.getElementById('transferList');
+            transferList.innerHTML = ''; 
+            transfers.forEach(transfer => {
+                const listItem = document.createElement('li');
+                listItem.className = 'transaction-item';
+                listItem.innerText = transfer;
+                transferList.appendChild(listItem);
+            });
+            showSection('transfer-history');
+        }
+
+        function logout() {
+            currentUser = null; 
+            alert("You have been logged out.");
+            showSection('login'); 
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBalanceDisplay(); 
+            showSection('login'); 
+        });
+
+    </script>
+</head>
+<body>
+    <header>
+        <div class="logo">Reems Bank</div>
+        <nav class="navbar">
+            <a href="#" onclick="showSection('login')">Home</a>
+            <a href="#" onclick="showSection('login')">Login</a>
+            <a href="#" onclick="showSection('register')">Register</a>
+            <a href="#" onclick="showSection('dashboard')">Dashboard</a>
+        </nav>
+    </header>
+
+    <section id="login" class="active">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+                <form onsubmit="event.preventDefault(); login();">
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="email">Email</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="email" type="email"/>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700" for="password">Password</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="password" type="password"/>
+                    </div>
+                    <button class="btn w-full" type="submit">Login</button>
+                </form>
+                <p class="mt-4 text-center">
+                    Don't have an account? <a class="text-blue-600 hover:underline" href="#" onclick="showSection('register')">Register</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="register">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
+                <form onsubmit="event.preventDefault(); register();">
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="name">Name</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="name" type="text"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="emailReg">Email</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="emailReg" type="email"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="passwordReg">Password</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="passwordReg" type="password"/>
+                    </div>
+                    <button class="btn w-full" type="submit">Register</button>
+                </form>
+                <p class="mt-4 text-center">
+                    Already have an account? <a class="text-blue-600 hover:underline" href="#" onclick="showSection('login')">Login</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Dashboard</h2>
+                <div class="mb-4">
+                    <h3 id="balanceDisplay" class="text-xl font-semibold">Balance: $1000</h3>
+                </div>
+                <div class="mb-4">
+                    <button class="btn w-full mb-2" onclick="showSection('deposit')">Deposit</button>
+                    <button class="btn w-full mb-2" onclick="showSection('withdraw')">Withdraw</button>
+                    <button class="btn w-full mb-2" onclick="showSection('transfer')">Transfer</button>
+                    <button class="btn w-full mb-2" onclick="showTransactionHistory()">Transaction History</button>
+                    <button class="btn w-full mb-2" onclick="showWithdrawalHistory()">Withdrawal History</button>
+                    <button class="btn w-full mb-2" onclick="showTransferHistory()">Transfer History</button>
+                </div>
+                <button class="btn w-full mt-4" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="deposit" class="active">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Deposit Money</h2>
+                <form onsubmit="event.preventDefault(); deposit();">
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="depositAmount">Amount</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="depositAmount" type="number" min="1"/>
+                    </div>
+                    <button class="btn w-full" type="submit">Submit Deposit</button>
+                </form>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="withdraw" class="active">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Withdraw Money</h2>
+                <form onsubmit="event.preventDefault(); withdraw();">
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="withdrawAmount">Amount</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="withdrawAmount" type="number" min="1"/>
+                    </div>
+                    <button class="btn w-full" type="submit">Submit Withdrawal</button>
+                </form>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="transfer" class="active">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Transfer Money</h2>
+                <form onsubmit="event.preventDefault(); transfer();">
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="transferAmount">Amount</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="transferAmount" type="number" min="1"/>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700" for="transferTo">Transfer To (Email)</label>
+                        <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600" id="transferTo" type="email"/>
+                    </div>
+                    <button class="btn w-full" type="submit">Submit Transfer</button>
+                </form>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="transaction-history">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Transaction History</h2>
+                <ul id="transactionList" class="transaction-list"></ul>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="withdrawal-history">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Withdrawal History</h2>
+                <ul id="withdrawalList" class="transaction-list"></ul>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="transfer-history">
+        <div class="flex justify-center">
+            <div class="w-full max-w-md">
+                <h2 class="text-2xl font-bold mb-6 text-center">Transfer History</h2>
+                <ul id="transferList" class="transaction-list"></ul>
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">
+                <button class="btn w-full mt-4" onclick="showSection('dashboard')">Back to Dashboard</button>
+                </div>
+            </div>
+        </section>
+    
+        <footer>
+            <div class="flex justify-center">
+                <p class="text-center text-gray-600">© 2024 Reems Bank.</p>
+            </div>
+        </footer>
+                </div>
+            </div>
+        </section>
+    </body>
+    </html>
