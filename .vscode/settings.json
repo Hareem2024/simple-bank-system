@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "CloudSQL-PostgreSQL",
+            "name": "PG Local",
+            "instanceConnectionName": "localhost",
+            "database": "reems_bank",
+            "username": "postgres",
+            "password": "hello123",
+            "connectionTimeout": 30
+        }
+    ]
+}

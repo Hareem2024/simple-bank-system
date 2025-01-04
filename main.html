@@ -7,7 +7,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600&display=swap" rel="stylesheet"/>
     <style>
-        * {
+        * { 
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -123,36 +123,62 @@
             document.getElementById('balanceDisplay').innerText = `Balance: $${balance}`;
         }
 
-        function login() {
+        function login() { 
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const user = users.find(u => u.email === email && u.password === password);
 
-            if (user) {
+            fetch('http://localhost:3003/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Invalid credentials');
+                }
+                return response.json();
+            })
+            .then(user => {
                 currentUser = user; 
                 alert("Logged in successfully!");
                 showSection('dashboard');
                 updateBalanceDisplay(); 
-            } else {
-                alert("Account not found. Create an account.");
-            }
+            })
+            .catch(error => {
+                alert(error.message);
+            });
         }
+            
 
         function register() {
             const name = document.getElementById('name').value;
             const email = document.getElementById('emailReg').value;
             const password = document.getElementById('passwordReg').value;
-            const existingUser = users.find(u => u.email === email);
-            if (existingUser) {
-                alert("Account already exists. Please log in.");
-                return;
-            }
 
-            users.push({ name, email, password }); 
-            alert("Registration successful! You can now log in.");
-            showSection('login');
+            fetch('http://localhost:3003/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, password })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Account already exists. Please log in.');
+                }
+                return response.json();
+            })
+            .then(user => {
+                alert("Registration successful! You can now log in.");
+                showSection('login');
+            })
+            .catch(error => {
+                alert(error.message);
+            });
         }
-
         function deposit() {
             const depositAmount = parseFloat(document.getElementById('depositAmount').value);
             if (isNaN(depositAmount) || depositAmount <= 0) {
